@@ -1,5 +1,9 @@
 *.idea
-
+templates/
+static/
+article.pdf
+secret.png
+*.lp
 # Created by https://www.gitignore.io/api/python
 
 ### Python ###
