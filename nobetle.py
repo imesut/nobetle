@@ -12,11 +12,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 app.secret_key = "B1rI!kt3B!rIlK3"
 
-#bcrypt = Bcrypt(app)
+bcrypt = Bcrypt(app)
 
-#pw_hash = bcrypt.generate_password_hash('hunter2')
-#print(pw_hash)
-#bcrypt.check_password_hash(pw_hash, 'hunter2') # returns True
+#bcrypt.generate_password_hash("1234567890")
 
 class User(db.Model):
     __tablename__ = "User"
@@ -142,7 +140,7 @@ def login():
             if "remember" in request.form:
                 remember_me = True
             l_user = User.query.filter_by(mail = email_form).first()
-            if password_form == l_user.password:
+            if bcrypt.check_password_hash(l_user.password, password_form):
                 flash("Logged In Succesfully")
                 login_user(l_user)
                 return redirect(url_for('dashboard'))
