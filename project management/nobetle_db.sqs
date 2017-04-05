@@ -70,7 +70,8 @@
         </SQLField>
         <SQLField>
             <name><![CDATA[period]]></name>
-            <type><![CDATA[INTEGER]]></type>
+            <type><![CDATA[TEXT]]></type>
+            <temporaryOriginalName><![CDATA[period]]></temporaryOriginalName>
             <uid><![CDATA[6001F346-1F3E-4938-84B0-C799395CBC05]]></uid>
         </SQLField>
         <SQLField>
@@ -163,8 +164,9 @@
             <uid><![CDATA[EAF870EF-FC70-4E5B-AEFF-31A0749A5A67]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[pass]]></name>
+            <name><![CDATA[password]]></name>
             <type><![CDATA[TEXT]]></type>
+            <temporaryOriginalName><![CDATA[pass]]></temporaryOriginalName>
             <uid><![CDATA[71E290CF-9F68-4650-B2FE-5C330637FA31]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[1]]></labelWindowIndex>
@@ -372,7 +374,7 @@ b3KGkoSjnqiiAYaShJmZC05TUGFwZXJOYW1lhpKEmZkGaXNvLWE0hoaG
 ]]></encodedPrintInfo>
         <autoSizeTablesOption><![CDATA[0]]></autoSizeTablesOption>
         <documentScaleFactor><![CDATA[1]]></documentScaleFactor>
-        <exportDialect><![CDATA[SQLite]]></exportDialect>
+        <exportDialect><![CDATA[mysql]]></exportDialect>
         <fileversion><![CDATA[3.1]]></fileversion>
         <generator><![CDATA[com.malcolmhardie.sqleditor]]></generator>
         <generatorVersion><![CDATA[2.0]]></generatorVersion>
