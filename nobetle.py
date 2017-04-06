@@ -4,14 +4,13 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+mysqldb://root:12345678@localhost/nobetle"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqldb://root:12345678@localhost/nobetle"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+app.config["SQLALCHEMY_ECHO"] = True
 db = SQLAlchemy(app)
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 app.secret_key = "B1rI!kt3B!rIlK3"
-
 bcrypt = Bcrypt(app)
 
 #bcrypt.generate_password_hash("1234567890")
@@ -30,7 +29,7 @@ class User(db.Model):
         return True
 
     def get_id(self):
-        return self.mail
+        return self.id
 
     def is_authenticated(self):
         return self.authenticated
@@ -49,7 +48,6 @@ class User(db.Model):
 
     def __repr__(self):
         return "<User(name='%s', id='%s')>" % (self.Name, self.id)
-
 class NobetleRun(db.Model):
     __tablename__ = "NobetleRun"
     Crp = db.Column(db.Integer, primary_key=True)
@@ -65,7 +63,6 @@ class NobetleRun(db.Model):
 
     def __repr__(self):
         return "<NobetleRun(Crp='%s', period='%s', run='%s')>" % (self.Crp, self.period, self.run)
-
 class DrNobInfo(db.Model):
     __tablename__ = "DrNobInfo"
     Crp = db.Column(db.Integer, primary_key=True)
@@ -93,7 +90,6 @@ class DrNobInfo(db.Model):
 
     def __repr__(self):
         return "<DrNobInfo(Crp='%s', id='%s', period='%s')>" % (self.Crp, self.id, self.period)
-
 class DrNobet(db.Model):
     __tablename__ = "DrNobet"
     Crp = db.Column(db.Integer, primary_key=True)
@@ -114,18 +110,13 @@ class DrNobet(db.Model):
     def __repr__(self):
         return "<DrNobet(Crp='%s', period='%s', run='%s', id='%s', location='%s', day='%s')>" % (self.Crp, self.period, self.run, self.id, self.location, self.day)
 
-# print(User.query.all())
-# print(NobetleRun.query.all())
-# print(DrNobInfo.query.all())
-# print(DrNobet.query.all())
+@app.errorhandler(404)
+def not_found(error):
+    return "404"
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
-
-@app.errorhandler(404)
-def not_found(error):
-    return "404"
 
 @app.route('/')
 def home():
@@ -133,45 +124,68 @@ def home():
 
 @app.route('/login', methods=["POST", "GET"])
 def login():
-    if not current_user.is_active:
-        if request.method == "POST":
-            email_form = request.form["email"]
-            password_form = request.form["password"]
-            if "remember" in request.form:
-                remember_me = True
-            l_user = User.query.filter_by(mail = email_form).first()
+    if request.method == "POST":
+        email_form = request.form["email"]
+        password_form = request.form["password"]
+        l_user = User.query.filter_by(mail = email_form).first()
+        if l_user:
             if bcrypt.check_password_hash(l_user.password, password_form):
-                flash("Logged In Succesfully")
+                print(l_user.type)
                 login_user(l_user)
                 return redirect(url_for('dashboard'))
+            else:
+                flash("Parolanızı mı unuttunuz?")
+        else:
+            flash("Hatalı Girişi Bilgisi: kullanıcı bulunamadı.")
+    elif hasattr(current_user, "type"):
+        print(current_user, current_user.type)
+        if current_user.type == "owner":
+            return redirect(url_for('panel'))
+        if current_user.type == "admin":
+            return redirect(url_for('dashboard'))
+        if current_user.type == "dr":
+            return redirect(url_for('profil'))
     return render_template("login.html")
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
+    print(current_user.type)
+    if current_user.type == "owner":
+        return redirect(url_for('panel'))
+    if current_user.type == "dr":
+        return redirect(url_for('profil'))
     print(current_user)
     return "dashboard"
 
 @app.route('/panel')
 @login_required
 def panel():
-    return "deneme"
+    if current_user.type == "admin":
+        return redirect(url_for('dashboard'))
+    if current_user.type == "dr":
+        return redirect(url_for('profil'))
+    return "panel"
+
+@app.route('/profil')
+@login_required
+def profil():
+    if current_user.type == "owner":
+        return redirect(url_for('panel'))
+    if current_user.type == "admin":
+        return redirect(url_for('dashboard'))
+    return "profil"
 
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    current_user = ""
+    return redirect(url_for('login'))
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run()
-
-"""
-@app.route('/sonuc', methods=["POST", "GET"])
-def sonuc():
-    if request.method == "POST":
-        marangoz = request.form["marangoz"]
-        boyama = request.form["boyama"]
-    else:
-        print("alamadım")
-"""
