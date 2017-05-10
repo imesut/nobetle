@@ -3,6 +3,7 @@ static/
 article.pdf
 secret.png
 *.lp
+project_management/
 # Created by https://www.gitignore.io/api/python
 
 ### Python ###
