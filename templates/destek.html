@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>AdminLTE 2 | Dashboard</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="../static/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../static/plugins/iCheck/flat/blue.css">
+    <link rel="stylesheet" href="../static/plugins/datepicker/datepicker3.css">
+    <link rel="stylesheet" href="../static/plugins/daterangepicker/daterangepicker.css">
+</head>
+
+<body class="hold-transition skin-blue sidebar-mini">
+    <div class="wrapper">
+        <header class="main-header">
+            <a href="index2.html" class="logo">
+                <span class="logo-mini">Nob.</span>
+                <span class="logo-lg">Nöbetle</span>
+            </a>
+            <nav class="navbar navbar-static-top">
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <span class="hidden-xs">{{ name }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <aside class="main-sidebar">
+            <section class="sidebar">
+                <ul class="sidebar-menu">
+                    <li class="header">MENÜ</li>
+                    {% for i in menu|sort() %}
+                    <li>
+                        <a href="{{ menu[i]["url"] }}">
+                            <i class="fa fa-book"></i> <span>{{ menu[i]["text"] }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </aside>
+        <div class="content-wrapper">
+            <section class="content-header">
+                <h1>Yardım mı Gerek?</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    <div style="padding: 25px">
+                        <p>Destek için<br><a href="mailto:nobetle@nobetle.com">nobetle@nobetle.com</a></p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    <script src="../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../static/js/app.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+    <script src="../static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../static/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="../static/plugins/datepicker/bootstrap-datepicker.js"></script>
+</body>
+
+</html>

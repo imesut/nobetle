@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Deneme{% endblock %}
+
+{% block additional_head %}{% endblock %}
+
+{% block name %}{{ name }}{% endblock %}
+
+{% block menu %}
+    {% for i in menu|sort() %}
+        <li>
+            <a href="{{ menu[i]["url"] }}">
+                <i class="fa fa-book"></i> <span>{{ menu[i]["text"] }}</span>
+            </a>
+        </li>
+    {% endfor %}
+{% endblock %}
+
+{% block content_title %}Box Başlığı{% endblock %}
+
+{% block box_content %}
+Box content
+{% endblock %}
+
+{% block additional_scripts %}{% endblock %}

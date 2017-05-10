@@ -1,5 +1,4 @@
 *.idea
-templates/
 static/
 article.pdf
 secret.png
