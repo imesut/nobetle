@@ -240,12 +240,16 @@ def panel():
     return render_template("owner.html", liste=adminlist, title="Owner Page")
 
 
-@app.route('/profil')
+@app.route('/profil', methods=["GET", "POST"])
 #DR
 @login_required
 def profil():
     if current_user.type != "dr":
         return redirect(url_for('login'))
+    if request.method == "POST":
+        favorable_times = request.form["favorableTimes"].split(",")
+        unfavorable_times = request.form["unfavorableTimes"].split(",")
+        print(favorable_times, unfavorable_times)
     return render_template("dr.html", name=current_user.Name + " " + current_user.Surname,
                            menu={"1": {"url": "#", "text": "Öge1"},
                                  "2": {"url": "/logout", "text": "Oturumu Kapat"}}

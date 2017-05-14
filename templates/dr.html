@@ -19,7 +19,47 @@
 {% block content_title %}Box Başlığı{% endblock %}
 
 {% block box_content %}
-Box content
+                    <div class="box-body">
+                        <form action="/profil" method="post">
+
+                            <p>Şu tarihlerde nöbet tutmak hoşuma gider;</p>
+
+                            <div class="input-group date col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" name="favorableTimes" class="form-control pull-right datepicker">
+                            </div>
+                            <p>Şu tarihlerde nöbet tutmak pek hoşuma gitmez;</p>
+                            <div class="input-group date col-sm-6">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <input type="text" name="unfavorableTimes" class="form-control pull-right datepicker">
+                            </div>
+                            <center>
+                                <button type="submit" class="btn btn-primary btn-lg">Sisteme Ekle</button>
+                            </center>
+                        </form>
+                    </div>
 {% endblock %}
 
-{% block additional_scripts %}{% endblock %}
+{% block additional_scripts %}
+    <script>
+        $(function() {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = today.getMonth();
+            var day = today.getDate();
+            var time = new Date(year, month + 1, day);
+            $('.datepicker').datepicker({
+                defaultViewDate: time,
+                autoclose: false,
+                multidate: true,
+                format: "dd",
+
+            });
+        });
+
+    </script>
+{% endblock %}
