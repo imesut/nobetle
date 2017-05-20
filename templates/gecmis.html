@@ -6,15 +6,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>AdminLTE 2 | Dashboard</title>
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../static/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="../static/css/AdminLTE.min.css">
-    <link rel="stylesheet" href="../static/skins/_all-skins.min.css">
-    <link rel="stylesheet" href="../static/plugins/iCheck/flat/blue.css">
-    <link rel="stylesheet" href="../static/plugins/datepicker/datepicker3.css">
-    <link rel="stylesheet" href="../static/plugins/daterangepicker/daterangepicker.css">
-    <link rel="stylesheet" href="../static/plugins/fullcalendar/fullcalendar.min.css">
-    <link rel="stylesheet" href="../static/plugins/fullcalendar/fullcalendar.print.css" media="print">
+    <link rel="stylesheet" href="../../static/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="../../static/skins/_all-skins.min.css">
+    <link rel="stylesheet" href="../../static/plugins/iCheck/flat/blue.css">
+    <link rel="stylesheet" href="../../static/plugins/datepicker/datepicker3.css">
+    <link rel="stylesheet" href="../../static/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="../../static/plugins/fullcalendar/fullcalendar.min.css">
+    <link rel="stylesheet" href="../../static/plugins/fullcalendar/fullcalendar.print.css" media="print">
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -59,21 +59,31 @@
             </section>
             <section class="content">
                 <div class="box">
-                    <div style="padding: 10px">
-                        <div id="calendar"></div>
-                    </div>
+                <div style="padding: 10px">
+                {% if schedule %}
+                    <div id="calendar"></div>
+                {% endif %}
+                </div>
+                {% if message %}
+                 <div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <h4><i class="icon fa fa-ban"></i> Alert!</h4>
+                    {{ message }}
+                    <br>Please go to <a href='/dashboard/gecmis'>main history url</a>
+                </div>
+                {% endif %}
                 </div>
             </section>
         </div>
     </div>
-    <script src="../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
-    <script src="../static/js/app.min.js"></script>
+    <script src="../../static/plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="../../static/js/app.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-    <script src="../static/bootstrap/js/bootstrap.min.js"></script>
-    <script src="../static/plugins/daterangepicker/daterangepicker.js"></script>
-    <script src="../static/plugins/datepicker/bootstrap-datepicker.js"></script>
+    <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../../static/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="../../static/plugins/datepicker/bootstrap-datepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
-    <script src="../static/plugins/fullcalendar/fullcalendar.min.js"></script>
+    <script src="../../static/plugins/fullcalendar/fullcalendar.min.js"></script>
     <script>
         $(function() {
             function ini_events(ele) {
@@ -100,15 +110,12 @@
                     month: 'Aylık Takvim',
                     listMonth: 'Aylık Çizelge'
                 },
-                events: [{
-                        title: 'ICU 1 | Mesut Yılmaz Deneme Deneme Deneme Deneme',
-                        start: new Date(y, m, 1)
-                    },
-                    {
-                        title: 'Mesut Yılmaz | ICU 1 Deneme Deneme Deneme Deneme',
-                        start: new Date(y, m, 7)
-                    }
-                ]
+                events: [{% if schedule %}{% for i in schedule %}
+                            {
+                                title: '{{ i.location }} | {{ i.id }}',
+                                start: new Date(y, m, {{ i.day }})
+                            {% if i != schedule[-1] %}},{% else %}}{% endif %}{% endfor %}{% endif %}
+                        ]
             });
         });
 
