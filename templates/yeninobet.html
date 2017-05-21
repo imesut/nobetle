@@ -67,29 +67,47 @@
         </aside>
         <div class="content-wrapper">
             <section class="content-header">
+                <h1>Nöbetle!</h1>
+            </section>
+            <section class="content">
+                <div class="box">
+                    {% if status == "notready" %}
+                    <div class="alert alert-warning alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <h4><i class="icon fa fa-warning"></i> Veriler Eksik!</h4>
+                        Doktorlarla ilgili gerekli bazı veriler eksik. Nöbetleyemiyorum...<br>"Bilgi Girişi" alanındaki bilgileri güncelleyebilirsiniz.
+                    </div>
+                    {% endif %}
+                    {% if status == "ready" %}
+                    <div class="alert alert-info alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <h4><i class="icon fa fa-info"></i> Nöbetle!</h4>
+                        Nöbetlemek için her şey hazır.<br>Aşağıdaki Nöbetle butonuna basarak aylık nöbet çizelgenizi oluşturabilirsin.
+                    </div>
+                    <div class="text-center">
+                        <a href="/dashboard/yeninobet/nobetle" style="margin: 25px" class="btn btn-primary btn-lg">Nöbetle!</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+            {% if status == "notready" %}
+            <section class="content-header">
                 <h1>Bilgi Girişi</h1>
             </section>
             <section class="content">
-                <div class="col-md-3">
-                    <div class="box">
-                        <div id="calendar" style="font-size: xx-small"></div>
-                    </div>
-                </div>
-                <div class="col-md-9">
                     <div class="box">
                         <p style="margin: 25px">Nöbet çizelgesini hazırlayacağın dönem için bölümündeki doktorların, izin günü, zorunlu nöbet günleri gibi bilgilerini aşağıdaki tabloya girip, onaylayabilirsin.</p>
-                        <form action="/dashboard/yeninobet" method="post">
+                        <form name="yeninobet" action="/dashboard/yeninobet" onsubmit="return validateForm()" method="post">
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped dataTable">
                                     <thead>
                                         <tr>
                                             <th>İsim</th>
                                             <th>Soyisim</th>
-                                            <!--Crp, id, period, friday_shifts, total_shifts, we_shifts, inf_loc, vacation_days, mustdays, on_days, off_days-->
                                             <th>friday_shifts</th>
                                             <th>total_shifts</th>
                                             <th>we_shifts</th>
-                                            <th>inf_loc</th>
+                                            <th>Nöbet Alanları</th>
                                             <th>vacation_days</th>
                                             <th>mustdays</th>
                                             <th>on_days</th>
@@ -101,13 +119,13 @@
                                         <tr>
                                             <td>{{ i.Name }}</td>
                                             <td>{{ i.Surname }}</td>
-                                            <td><select name="{{ i.id }}-friday_shifts" id="{{ i.id }}" class="friday_shifts"><option value="1">Evet</option><option value="0">Hayır</option></select></td>
-                                            <td><input name="{{ i.id }}-total_shifts" id="{{ i.id }}" class="total_shifts" value="0"></td>
-                                            <td><input name="{{ i.id }}-we_shifts" id="{{ i.id }}" class="we_shifts" value="0"></td>
+                                            <td><select name="{{ i.id }}-friday_shifts" id="{{ i.id }}" class="friday_shifts" required><option value="1">Evet</option><option value="0">Hayır</option></select></td>
+                                            <td><input name="{{ i.id }}-total_shifts" id="{{ i.id }}" class="total_shifts" value="0" required></td>
+                                            <td><input name="{{ i.id }}-we_shifts" id="{{ i.id }}" class="we_shifts" value="0" required></td>
                                             <td>
-                                                <input type="checkbox" id="{{ i.id }}" name="{{ i.id }}-inf_loc" value="SR">SR<br>
-                                                <input type="checkbox" id="{{ i.id }}" name="{{ i.id }}-inf_loc" value="ICU1">ICU1<br>
-                                                <input type="checkbox" id="{{ i.id }}" name="{{ i.id }}-inf_loc" value="ICU2">ICU2<br>
+                                                {% for j in places %}
+                                                <input type="checkbox" id="{{ i.id }}" name="{{ i.id }}-inf_loc" value="{{ j[0] }}">{{ j[0] }}<br>
+                                                {% endfor %}
                                             </td>
                                             <td>
                                                 <input type="text" name="{{ i.id }}-vacation_days" id="{{ i.id }}" value="" class="vacation_days form-control datepicker">
@@ -139,29 +157,9 @@
                             </center>
                         </form>
                     </div>
-                </div>
                 <div class="clearfix"> </div>
             </section>
-            <section class="content-header">
-                <h1>Nöbetle!</h1>
-            </section>
-            <section class="content">
-                <div class="box">
-                    <div class="alert alert-warning alert-dismissible">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        <h4><i class="icon fa fa-warning"></i> Veriler Eksik!</h4>
-                        Doktorlarla ilgili gerekli bazı veriler eksik. Nöbetleyemiyorum...<br>"Bilgi Girişi" alanındaki bilgileri güncelleyebilirsiniz.
-                    </div>
-                    <div class="alert alert-info alert-dismissible">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        <h4><i class="icon fa fa-info"></i> Nöbetle!</h4>
-                        Nöbetlemek için her şey hazır.<br>Aşağıdaki Nöbetle butonuna basarak aylık nöbet çizelgenizi oluşturabilirsin.
-                    </div>
-                    <div class="text-center">
-                        <button style="margin: 25px" class="btn btn-primary btn-lg">Nöbetle!</button>
-                    </div>
-                </div>
-            </section>
+            {% endif %}
         </div>
     </div>
     <script src="../static/plugins/jQuery/jquery-2.2.3.min.js"></script>

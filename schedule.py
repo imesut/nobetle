@@ -1,10 +1,14 @@
 # -*- coding: cp1254 -*-
 from pulp import *
-from apriori import info
 import time
+from nobetle_helper import none2emp
 
 
 def optimization(dr, days_number, fridays, weekends, locations):
+    none2emp(dr)
+    days_number=days_number+1
+    places = locations
+    locations = [place[0] for place in locations]
     begin_time = time.time()
     prob = LpProblem("nobetle", LpMinimize)
     s_p = 0
@@ -150,7 +154,9 @@ def optimization(dr, days_number, fridays, weekends, locations):
             prob += lpSum([shift_var[i][days[0 + s_p]][l] for l in locations]) + DevSwFNeg[i][t] == 1, ""
 
     for i in dr:
+        print("i:", i)
         for t in i.vacation_days:
+            print("t: ", t)
             prob += lpSum([shift_var[i][t][l] for l in locations]) == 0, ""
 
     for i in dr:

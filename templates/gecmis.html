@@ -61,15 +61,19 @@
                 <div class="box">
                 <div style="padding: 10px">
                 {% if schedule %}
+                    <div class="col-md-12">
+                    <a class="btn btn-default btn-lg" href="{{ link }}-prev"><i class="fa fa-angle-left" aria-hidden="true"></i></a>
+                    <a class="btn btn-default btn-lg" href="{{ link }}-next"><i class="fa fa-angle-right" aria-hidden="true"></i></a>
+                    </div>
                     <div id="calendar"></div>
                 {% endif %}
                 </div>
                 {% if message %}
                  <div class="alert alert-danger alert-dismissible">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <h4><i class="icon fa fa-ban"></i> Alert!</h4>
+                    <h4><i class="icon fa fa-ban"></i> Uyarı!</h4>
                     {{ message }}
-                    <br>Please go to <a href='/dashboard/gecmis'>main history url</a>
+                    <br>Güncel çizelge için <a href='/dashboard/gecmis'>geçmiş sayfasına gidiniz.</a>
                 </div>
                 {% endif %}
                 </div>
@@ -80,10 +84,10 @@
     <script src="../../static/js/app.min.js"></script>
     <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
     <script src="../../static/bootstrap/js/bootstrap.min.js"></script>
-    <script src="../../static/plugins/daterangepicker/daterangepicker.js"></script>
-    <script src="../../static/plugins/datepicker/bootstrap-datepicker.js"></script>
+    {% if not message %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
     <script src="../../static/plugins/fullcalendar/fullcalendar.min.js"></script>
+    <script src='../../static/plugins/fullcalendar/locale_tr.js'></script>
     <script>
         $(function() {
             function ini_events(ele) {
@@ -94,32 +98,36 @@
                     $(this).data('eventObject', eventObject);
                 });
             }
-            var date = new Date();
-            var d = date.getDate(),
-                m = date.getMonth(),
-                y = date.getFullYear();
-
             $('#calendar').fullCalendar({
+                defaultDate: '{{ period_numbers["year"] }}-{{ period_numbers["month"] }}-15',
+                firstDay: 1,
+                locale: 'tr',
                 header: {
-                    left: 'prev,next today',
-                    center: 'title',
+                    left: 'title',
                     right: 'month, listMonth'
                 },
                 buttonText: {
-                    today: 'today',
                     month: 'Aylık Takvim',
                     listMonth: 'Aylık Çizelge'
                 },
                 events: [{% if schedule %}{% for i in schedule %}
                             {
                                 title: '{{ i.location }} | {{ i.id }}',
-                                start: new Date(y, m, {{ i.day }})
+                                start: new Date({{ period_numbers["year"] }}, {{ period_numbers["month"] }}-1, {{ i.day }})
                             {% if i != schedule[-1] %}},{% else %}}{% endif %}{% endfor %}{% endif %}
                         ]
             });
         });
 
+        $('#fc-prev-button').click(function() {
+                console.log("next");
+        });
+        $('#fc-next-button').click(function() {
+                console.log("prev");
+        });
+
     </script>
+    {% endif %}
 
 </body>
 

@@ -2,10 +2,8 @@ from flask import Flask, render_template, url_for, request, g, flash, redirect
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
-from apriori import *
-import doktorcizelgele
-import json
-from nobetle_helper import integer
+import schedule
+from nobetle_helper import integer, nobetle_time, reverse_period, periods_nextto
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqldb://root:12345678@localhost/nobetle"
@@ -144,7 +142,6 @@ class DrNobet(db.Model):
         return "<DrNobet(Crp='%s', period='%s', id='%s', location='%s', day='%s')>" % (self.Crp, self.period, self.id,
                                                                                        self.location, self.day)
 
-
 @app.errorhandler(404)
 def not_found(error):
     return "404"
@@ -194,69 +191,6 @@ menu = {
   }
 }
 
-
-@app.route("/deneme/<page>")
-def deneme(page):
-    dr_liste = [info(id="1000", name="F", surname="", friday_shifts=0, total_shifts=5, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[4, 5, 6, 25, 26, 27, 28, 29, 30], mustdays=[18, 20], on_days=[], off_days=[]),
-                info(id="1001", name="E", surname="", friday_shifts=1, total_shifts=5, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[4, 5, 6], mustdays=[], on_days=[], off_days=[]),
-                info(id="1002", name="H", surname="", friday_shifts=1, total_shifts=5, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[4, 5, 6, 12, 19, 26, 30], mustdays=[25, 27], on_days=[], off_days=[]),
-                info(id="1003", name="S", surname="", friday_shifts=1, total_shifts=5, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[4, 5, 6, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
-                     mustdays=[11, 13], on_days=[], off_days=[]),
-                info(id="1004", name="İ", surname="", friday_shifts=0, total_shifts=5, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[4, 5, 6, 28, 19, 20, 29, 30], mustdays=[2], on_days=[], off_days=[]),
-                info(id="1005", name="H", surname="", friday_shifts=1, total_shifts=5, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[0, 11, 12, 13, 18, 19, 20, 30], mustdays=[4, 6, 9], on_days=[], off_days=[]),
-                info(id="1006", name="Z", surname="", friday_shifts=0, total_shifts=3, we_shifts=3,
-                     inf_loc=["SR", "ICU1"], vacation_days=[], mustdays=[], on_days=[], off_days=[]),
-                info(id="1007", name="B", surname="", friday_shifts=0, total_shifts=6, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[30], mustdays=[17], on_days=[], off_days=[]),
-                info(id="1008", name="Z", surname="", friday_shifts=0, total_shifts=3, we_shifts=3,
-                     inf_loc=["SR", "ICU1"], vacation_days=[], mustdays=[], on_days=[], off_days=[]),
-                info(id="1009", name="R", surname="", friday_shifts=1, total_shifts=7, we_shifts=1, inf_loc=["SR"],
-                     vacation_days=[], mustdays=[], on_days=[], off_days=[1, 2, 3, 8, 9, 10, 15, 16, 17, 22, 23, 24]),
-                info(id="1010", name="S", surname="", friday_shifts=1, total_shifts=8, we_shifts=1, inf_loc=[],
-                     vacation_days=[5], mustdays=[], on_days=[], off_days=[]),
-                info(id="1011", name="C", surname="", friday_shifts=1, total_shifts=8, we_shifts=1, inf_loc=[],
-                     vacation_days=[12, 13, 29, 30], mustdays=[], on_days=[], off_days=[]),
-                info(id="1012", name="P", surname="", friday_shifts=0, total_shifts=2, we_shifts=2,
-                     inf_loc=["SR", "ICU1"], vacation_days=[], mustdays=[], on_days=[], off_days=[]),
-                info(id="1013", name="H", surname="", friday_shifts=1, total_shifts=8, we_shifts=1, inf_loc=[],
-                     vacation_days=[30], mustdays=[], on_days=[], off_days=[]),
-                info(id="1014", name="A", surname="", friday_shifts=1, total_shifts=9, we_shifts=2,
-                     inf_loc=["ICU1", "ICU2"], vacation_days=[9], mustdays=[], on_days=[], off_days=[]),
-                info(id="1015", name="S", surname="", friday_shifts=2, total_shifts=9, we_shifts=3,
-                     inf_loc=["ICU1", "ICU2"], vacation_days=[], mustdays=[], on_days=[], off_days=[])
-                ]
-    period = "JAN2017"
-    if page == "1":
-        schedule = doktorcizelgele.optimization(dr=dr_liste, days_number=31, fridays=[4, 11, 18, 25],
-                                                weekends=[5, 6, 12, 13, 19, 20, 26, 27],
-                                                locations=["ICU1", "ICU2", "SR"])
-        for i in schedule["result"]:
-            new_schedule_item = DrNobet(Crp=current_user.Crp, period=period,
-                                        id=schedule["result"][i]["doctor_id"],
-                                        location=schedule["result"][i]["location"],
-                                        day=schedule["result"][i]["day"])
-            db.session.add(new_schedule_item)
-        last_run = 0
-        if NobetleRun.query.filter_by(period = period).first():
-            print("A schedule has found for this period")
-            last_run = NobetleRun.query.filter_by(period=period).order_by(NobetleRun.run.desc()).first().run
-        schedule_run_info = NobetleRun(Crp=current_user.Crp, period=period, run=last_run+1,
-                                       objective=schedule["metadata"]["objective_value"],
-                                       status=schedule["metadata"]["status"],
-                                       calc_duration=schedule["metadata"]["calc_duration"])
-        db.session.add(schedule_run_info)
-        db.session.commit()
-        return "deneme/1"
-    elif page == "2":
-        dr_nob_list = DrNobet.query.filter_by(Crp=current_user.Crp).all()
-        return render_template("deneme.html", dr_nob_list = dr_nob_list)
-
 @app.route('/')
 def home():
     return render_template("index.html")
@@ -300,7 +234,6 @@ def dashboard():
 @login_required
 #ADMIN_PAGES
 def dashboard_page(page):
-    print(page)
     if current_user.type != "admin":
         return redirect(url_for('login'))
     if request.method == "POST":
@@ -327,53 +260,135 @@ def dashboard_page(page):
                 total_shifts = integer(request.form.get(str(id) + "-total_shifts"))
                 vacation_days = [integer(i) for i in request.form.get(str(id) + "-vacation_days").split(",")]
                 we_shifts = integer(request.form.get(str(id) + "-we_shifts"))
-                print(friday_shifts, inf_loc, mustdays, off_days, on_days, total_shifts, vacation_days, we_shifts)
-                new_drnobinfo = DrNobInfo(Crp=current_user.Crp, id=id, period="JUN2017", friday_shifts=friday_shifts,
-                                          total_shifts=total_shifts, we_shifts=we_shifts,
-                                          inf_loc=", ".join(str(x) for x in inf_loc),
-                                          vacation_days=", ".join(str(x) for x in vacation_days),
-                                          mustdays=", ".join(str(x) for x in mustdays),
-                                          on_days=", ".join(str(x) for x in on_days),
-                                          off_days=", ".join(str(x) for x in off_days))
-                db.session.add(new_drnobinfo)
+                period = nobetle_time(1)["period"]
+                current_drnobinfo = DrNobInfo.query.filter_by(Crp=current_user.Crp).filter_by(period=period).filter_by(id=id).first()
+                if current_drnobinfo:
+                    current_drnobinfo.friday_shifts = friday_shifts
+                    current_drnobinfo.total_shifts = total_shifts
+                    current_drnobinfo.we_shifts = we_shifts
+                    current_drnobinfo.inf_loc = ", ".join(str(x) for x in inf_loc)
+                    current_drnobinfo.vacation_days = ", ".join(str(x) for x in vacation_days)
+                    current_drnobinfo.mustdays = ", ".join(str(x) for x in mustdays)
+                    current_drnobinfo.on_days = ", ".join(str(x) for x in on_days)
+                    current_drnobinfo.off_days = ", ".join(str(x) for x in off_days)
+                else:
+                    new_drnobinfo = DrNobInfo(Crp=current_user.Crp, id=id, period=period,
+                                              friday_shifts=friday_shifts,
+                                              total_shifts=total_shifts,
+                                              we_shifts=we_shifts,
+                                              inf_loc=", ".join(str(x) for x in inf_loc),
+                                              vacation_days=", ".join(str(x) for x in vacation_days),
+                                              mustdays=", ".join(str(x) for x in mustdays),
+                                              on_days=", ".join(str(x) for x in on_days),
+                                              off_days=", ".join(str(x) for x in off_days))
+                    db.session.add(new_drnobinfo)
             db.session.commit()
         elif request.base_url.endswith("/dashboard/ayarlar"):
-            places = ""
-            for i in request.form:
-                i = request.form.get(i)
+            places = Crp.query.filter_by(Crp=current_user.Crp).first().places
+            for i in range(1, int(len(request.form) / 2)):
+                place = request.form.get("name" + str(i), "")
+                critical = request.form.get("critical" + str(i), "")
                 if i:
-                    places = i + ", " + places
-            places = places[:-2]
-            print(places)
+                    places = place+","+critical+";" + places
+            if places[-2] == ";":
+                places = places[:-2]
             places_entry = Crp.query.filter_by(Crp=current_user.Crp).first()
             places_entry.places = places
             db.session.commit()
     if page in ["gecmis", "yeninobet", "destek", "doktorlar", "ayarlar"]:
-        DrList = User.query.filter_by(Crp=current_user.Crp).filter_by(type="dr").all()
         if page == "gecmis":
-            return redirect('/dashboard/gecmis/JUN2017')
+            period = nobetle_time(1)["period"]
+            return redirect('/dashboard/gecmis/'+ period)
         if page == "yeninobet":
-            return render_template("yeninobet.html", DrList=DrList, name=current_user.Name + " " + current_user.Surname,
-                                   menu=menu["admin"])
+            DrList = User.query.filter_by(Crp=current_user.Crp).filter_by(type="dr").all()
+            places = []
+            for i in Crp.query.filter_by(Crp=current_user.Crp).first().places.split(";"):
+                places.append(i.split(","))
+            nobinfo = DrNobInfo.query.filter_by(Crp=current_user.Crp).filter_by(period=nobetle_time(1)["period"]).all()
+            total_shift = 0
+            for i in nobinfo:
+                total_shift += i.total_shifts
+            if total_shift == nobetle_time(1)["day_number_in_month"]*len(places):
+                return render_template("yeninobet.html", status="ready",
+                                       name=current_user.Name + " " + current_user.Surname, menu=menu["admin"])
+            else:
+                return render_template("yeninobet.html", DrList=DrList, places=places, status="notready",
+                                   name=current_user.Name + " " + current_user.Surname, menu=menu["admin"])
         if page == "destek":
             return render_template("destek.html", name=current_user.Name+" "+current_user.Surname, menu=menu["admin"])
         if page == "doktorlar":
+            DrList = User.query.filter_by(Crp=current_user.Crp).filter_by(type="dr").all()
             return render_template("doktorlar.html", DrList=DrList, name=current_user.Name + " " + current_user.Surname,
                                    menu=menu["admin"])
         if page == "ayarlar":
-            return render_template("ayarlar.html", name=current_user.Name + " " + current_user.Surname,
+            places = []
+            for i in Crp.query.filter_by(Crp=current_user.Crp).first().places.split(";"):
+                places.append(i.split(","))
+            return render_template("ayarlar.html", places=places, name=current_user.Name + " " + current_user.Surname,
                                    menu=menu["admin"])
+
+
+@app.route('/deneme')
+def deneme():
+    return "OK"
+
+
+@app.route('/dashboard/yeninobet/nobetle')
+@login_required
+def nobetle():
+    if current_user.type != "admin":
+        return redirect(url_for('login'))
+    nobinfo = DrNobInfo.query.filter_by(Crp=current_user.Crp).filter_by(period=nobetle_time(1)["period"]).all()
+    total_shift = 0
+    for i in nobinfo:
+        total_shift += i.total_shifts
+    places = []
+    for i in Crp.query.filter_by(Crp=current_user.Crp).first().places.split(";"):
+        places.append(i.split(","))
+    lp_time = nobetle_time(1)
+    if total_shift == lp_time["day_number_in_month"] * len(places):
+        result = schedule.optimization(dr=nobinfo, days_number=lp_time["day_number_in_month"],
+                                       fridays=lp_time["friday_days"], weekends=lp_time["weekend_days"],
+                                       locations=places)
+        db.session.remove()
+        for i in result["result"]:
+            new_dr_nobet = DrNobet(Crp=str(current_user.Crp),
+                                   period=lp_time["period"],
+                                   id=str(result["result"][i]["doctor_id"]),
+                                   location=str(result["result"][i]["location"]),
+                                   day=str(result["result"][i]["day"]))
+            db.session.add(new_dr_nobet)
+        db.session.commit()
+        new_schedule_stat = NobetleRun(Crp=current_user.Crp,
+                                       period=lp_time["period"],
+                                       run=1,
+                                       objective=result["metadata"]["objective_value"],
+                                       status=result["metadata"]["status"],
+                                       calc_duration=result["metadata"]["calc_duration"])
+        db.session.add(new_schedule_stat)
+        db.session.commit()
+        return redirect("/dashboard/gecmis")
+    else:
+        return redirect("/dashboard/yeninobet")
 
 
 @app.route('/dashboard/gecmis/<period>')
 @login_required
 def history_period(period):
+    if current_user.type != "admin":
+        return redirect(url_for('login'))
+    if period.endswith("-prev"):
+        return redirect("/dashboard/gecmis/"+periods_nextto(period[:-5])["prev"])
+    elif period.endswith("-next"):
+        return redirect("/dashboard/gecmis/"+periods_nextto(period[:-5])["next"])
     period_schedule = DrNobet.query.filter_by(Crp=current_user.Crp).filter_by(period=period).all()
+    DrList = User.query.filter_by(Crp=current_user.Crp).filter_by(type="dr").all()
     if period_schedule:
-        return render_template("gecmis.html", schedule=period_schedule,
-                               name=current_user.Name + " " + current_user.Surname, menu=menu["admin"])
+        return render_template("gecmis.html", period_numbers=reverse_period(period), schedule=period_schedule,
+                               name=current_user.Name + " " + current_user.Surname,
+                               link=request.path, menu=menu["admin"])
     else:
-        return render_template("gecmis.html", message="No schedule info found for period of " + period,
+        return render_template("gecmis.html", message= period + " dönemi için kayıtlı bir nöbet çizelgesi bulunamadı.",
                                name=current_user.Name + " " + current_user.Surname, menu=menu["admin"])
 
 

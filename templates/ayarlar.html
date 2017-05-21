@@ -54,7 +54,8 @@
         </aside>
         <div class="content-wrapper">
             <section class="content-header">
-                <h1>Nöbet Alanları Doktorlar</h1>
+                <h1>Ayarlar</h1><br>
+                <h1>Nöbet Alanları</h1>
             </section>
             <section class="content">
                 <div class="box">
@@ -62,14 +63,18 @@
                         <table class="table table-bordered table-striped dataTable">
                             <thead>
                                 <tr>
-                                    <th>Alanın Adı*</th>
+                                    <th>Alanın Adı</th>
+                                    <th>Kritiklik Durumu</th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for i in alan %}
+                            {% for i in places %}
                                     <tr>
                                         <td>
-                                            {{ i.Name }}
+                                            {{ i[0] }}
+                                        </td>
+                                        <td>
+                                            {{ i[1] }}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -89,13 +94,17 @@
                                 <thead>
                                     <tr>
                                         <th>Alan</th>
+                                        <th>Kritik Alan mı?</th>
                                         <th>Sil</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr id='alan0' data-id="0" class="hidden">
                                         <td data-name="name">
-                                            <input type="text" name='alan0' placeholder='Alan Adı 1' class="form-control" />
+                                            <input type="text" name='name0' placeholder='Alan Adı 1' class="form-control" />
+                                        </td>
+                                        <td data-name="critical">
+                                            <select name="critical0" class="form-control"><option value="critical" selected>Kritik</option><option value="notcritical">Kritik Değil</option></select>
                                         </td>
                                         <td data-name="del">
                                             <button name="del0" class='btn btn-danger glyphicon glyphicon-remove row-remove'></button>
