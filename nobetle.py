@@ -15,8 +15,6 @@ login_manager.init_app(app)
 app.secret_key = "BenGelmedimKaygiIcin"
 bcrypt = Bcrypt(app)
 
-#bcrypt.generate_password_hash("1234567890")
-
 
 class User(db.Model):
     __tablename__ = "User"
@@ -269,7 +267,8 @@ def dashboard_page(page):
                 vacation_days = [integer(i) for i in request.form.get(str(id) + "-vacation_days").split(",")]
                 we_shifts = integer(request.form.get(str(id) + "-we_shifts"))
                 period = nobetle_time(1)["period"]
-                current_drnobinfo = DrNobInfo.query.filter_by(Crp=current_user.Crp).filter_by(period=period).filter_by(id=id).first()
+                current_drnobinfo = DrNobInfo.query.filter_by(Crp=current_user.Crp).filter_by(period=period)
+                current_drnobinfo = current_drnobinfo.filter_by(id=id).first()
                 if current_drnobinfo:
                     current_drnobinfo.friday_shifts = friday_shifts
                     current_drnobinfo.total_shifts = total_shifts

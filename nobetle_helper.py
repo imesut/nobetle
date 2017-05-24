@@ -1,5 +1,6 @@
 import time, calendar, datetime
 
+
 def integer(string):
     if string:
         return int(string)
