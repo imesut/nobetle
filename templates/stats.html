@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}İstatistikler{% endblock %}
+
+{% block additional_head %}{% endblock %}
+
+{% block name %}{{ name }}{% endblock %}
+
+{% block menu %}
+                    {% for i in menu|sort() %}
+                    <li>
+                        <a href="{{ menu[i]["url"] }}">
+                            <i class="fa fa-book"></i> <span>{{ menu[i]["text"] }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+{% endblock %}
+
+{% block content_title %}İstatistikler{% endblock %}
+
+{% block box_content %}
+    <div class="row">
+
+        <div class="col-xs-12 col-lg-6">
+          <div class="small-box bg-green">
+            <div class="inner">
+              <h3>{{ pdrn }}</h3>
+              <h4>Bu Dönem Tutacağın Nöbet Sayısı</h4>
+            </div>
+            <div class="icon">
+                <i class="fa fa-user-md"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+          <div class="small-box bg-blue">
+            <div class="inner">
+              <h3>{{ pden }}</h3>
+              <h4>Bu Dönem Tutulacak Toplam Nöbet Sayısı</h4>
+            </div>
+            <div class="icon">
+              <i class="fa fa-calendar-plus-o"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-lg-6">
+          <div class="small-box bg-aqua">
+            <div class="inner">
+              <h3>{{ pden/dn }}</h3>
+              <h4>Doktor Başına Bu Dönem Tutulacak Nöbet Sayısı</h4>
+            </div>
+            <div class="icon">
+              <i class="fa fa-users"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+        <div class="col-xs-12 col-lg-6">
+          <div class="small-box bg-orange">
+            <div class="inner">
+              <h3>{{ aden - pden }}</h3>
+              <h4>Bugüne Kadar Tuttuğun Nöbet Toplamı</h4>
+            </div>
+            <div class="icon">
+              <i class="fa fa-calendar-check-o"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
+          </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block additional_scripts %}{% endblock %}
+
+pdrn=period_dr_shift_number,
+                           pden=period_department_shift_number,
+                           dn=doctor_number,
+                           adrn=all_department_shift_number,
+                           aden=all_dr_shift_number)
+

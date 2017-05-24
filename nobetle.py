@@ -175,16 +175,24 @@ menu = {
       "text": "Ayarlar"
     },
     "6": {
+      "url": "/dashboard/stats",
+      "text": "İstatistikler"
+    },
+    "7": {
       "url": "/logout",
       "text": "Oturumu Kapat"
     }
   },
   "dr": {
       "1": {
-          "url": "#",
-          "text": "Öge1"
+          "url": "/profil/profil",
+          "text": "Profil"
       },
       "2": {
+          "url": "/profil/stats",
+          "text": "İstatistikler"
+      },
+      "3": {
           "url": "/logout",
           "text": "Oturumu Kapat"
       }
@@ -295,7 +303,7 @@ def dashboard_page(page):
             places_entry = Crp.query.filter_by(Crp=current_user.Crp).first()
             places_entry.places = places
             db.session.commit()
-    if page in ["gecmis", "yeninobet", "destek", "doktorlar", "ayarlar"]:
+    if page in ["gecmis", "yeninobet", "destek", "doktorlar", "ayarlar", "stats"]:
         if page == "gecmis":
             period = nobetle_time(1)["period"]
             return redirect('/dashboard/gecmis/'+ period)
@@ -326,11 +334,8 @@ def dashboard_page(page):
                 places.append(i.split(","))
             return render_template("ayarlar.html", places=places, name=current_user.Name + " " + current_user.Surname,
                                    menu=menu["admin"])
-
-
-@app.route('/deneme')
-def deneme():
-    return "OK"
+        if page == "stats":
+            return stats("stats.html", menu["admin"])
 
 
 @app.route('/dashboard/yeninobet/nobetle')
@@ -392,6 +397,34 @@ def history_period(period):
                                name=current_user.Name + " " + current_user.Surname, menu=menu["admin"])
 
 
+@app.route('/stats')
+@login_required
+def stats(*args):
+    period = nobetle_time(1)["period"]
+    dr = DrNobet.query.filter_by(id=current_user.id)
+    department = DrNobet.query.filter_by(Crp=current_user.Crp)
+    period_dr_shift_number = len(dr.filter_by(period=period).all())
+    period_department_shift_number = len(department.filter_by(period=period).all())
+    doctor_number = len(User.query.filter_by(Crp=current_user.Crp).filter_by(type="dr").all())
+    all_dr_shift_number = len(dr.all())
+    all_department_shift_number = len(department.all())
+    menu = ""
+    if not args:
+        page = "stats.html"
+    else:
+        for i in args:
+            if str(i).endswith(".html"):
+                page = str(i)
+            else:
+                menu = i
+    return render_template(page, menu=menu,
+                           pdrn=period_dr_shift_number,
+                           pden=period_department_shift_number,
+                           dn=doctor_number,
+                           adrn=all_department_shift_number,
+                           aden=all_dr_shift_number)
+
+
 @app.route('/panel', methods=["POST", "GET"])
 @login_required
 #OWNER
@@ -419,18 +452,27 @@ def panel():
     return render_template("owner.html", liste=adminlist, title="Owner Page")
 
 
-@app.route('/profil', methods=["GET", "POST"])
+@app.route('/profil')
 #DR
 @login_required
 def profil():
+    return redirect("/profil/profil")
+
+
+@app.route('/profil/<page>', methods=["POST", "GET"])
+@login_required
+def profil_page(page):
     if current_user.type != "dr":
         return redirect(url_for('login'))
     if request.method == "POST":
-        favorable_times = request.form["favorableTimes"].split(",")
-        unfavorable_times = request.form["unfavorableTimes"].split(",")
-        print(favorable_times, unfavorable_times)
-    return render_template("dr.html", name=current_user.Name + " " + current_user.Surname,
+        if request.base_url.endswith("/profil/profil"):
+            favorable_times = request.form["favorableTimes"].split(",")
+            unfavorable_times = request.form["unfavorableTimes"].split(",")
+    if page == "profil":
+        return render_template("dr.html", name=current_user.Name + " " + current_user.Surname,
                            menu=menu["dr"])
+    elif page == "stats":
+        return stats("stats.html", menu["dr"])
 
 
 @app.route('/logout')

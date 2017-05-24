@@ -90,7 +90,8 @@ def optimization(dr, days_number, fridays, weekends, locations):
                   + [cof_tan_pos[i, t] * DevTanPos[i][t] for i in dr for t in days]), ""
 
     for i in dr:
-        for l in i.inf_loc:
+        inf_loc = i.inf_loc.split(", ")
+        for l in inf_loc:
             prob += lpSum([shift_var[i][t][l] for t in days]) == 0, ""
 
     for i in dr:
@@ -154,22 +155,28 @@ def optimization(dr, days_number, fridays, weekends, locations):
             prob += lpSum([shift_var[i][days[0 + s_p]][l] for l in locations]) + DevSwFNeg[i][t] == 1, ""
 
     for i in dr:
-        print("i:", i)
-        for t in i.vacation_days:
-            print("t: ", t)
-            prob += lpSum([shift_var[i][t][l] for l in locations]) == 0, ""
+        if i.vacation_days:
+            vacation_days = i.vacation_days.split(", ")
+        for t in vacation_days:
+            prob += lpSum([shift_var[i][int(t)][l] for l in locations]) == 0, ""
 
     for i in dr:
-        for t in i.mustdays:
-            prob += lpSum([shift_var[i][t][l] for l in locations]) == 1, ""
+        if i.mustdays:
+            mustdays = i.mustdays.split(", ")
+        for t in mustdays:
+            prob += lpSum([shift_var[i][int(t)][l] for l in locations]) == 1, ""
 
     for i in dr:
-        for t in i.off_days:
-            prob += lpSum([shift_var[i][t][l] for l in locations]) - DevOFFPos[i][t] == 0, ""
+        if i.off_days:
+            off_days = i.off_days.split(", ")
+        for t in off_days:
+            prob += lpSum([shift_var[i][int(t)][l] for l in locations]) - DevOFFPos[i][int(t)] == 0, ""
 
     for i in dr:
+        if i.on_days:
+            on_days = i.on_days.split(", ")
         for t in i.on_days:
-            prob += lpSum([shift_var[i][t][l] for l in locations]) + DevONNeg[i][t] == 1, ""
+            prob += lpSum([shift_var[i][int(t)][l] for l in locations]) + DevONNeg[i][int(t)] == 1, ""
 
     prob.writeLP("nobetle.lp")
     prob.solve()
