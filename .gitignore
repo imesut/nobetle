@@ -1,5 +1,6 @@
 *.idea
 static/
+origin_template/
 article.pdf
 secret.png
 *.lp

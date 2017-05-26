@@ -5,11 +5,22 @@ from nobetle_helper import none2emp
 
 
 def optimization(dr, days_number, fridays, weekends, locations):
+    """
+    This function is a modularization of linear programming model via PuLP library.
+    :param dr: A list of users whom user type is "dr"(doctor)
+    :param days_number: Day number in scheduling period
+    :param fridays: A list of friday day numbers
+    :param weekends: A list of weekend day numbers
+    :param locations: Shift places of department
+    :return: a dictionary consists of LP models output and schedule assignments.
+    """
+    # dr list is cleaned from None values
     none2emp(dr)
-    days_number=days_number+1
-    places = locations
+    days_number = days_number+1
     locations = [place[0] for place in locations]
+    # measure working time
     begin_time = time.time()
+    # naming the problem
     prob = LpProblem("nobetle", LpMinimize)
     s_p = 0
     days = range(s_p, days_number + s_p)
@@ -26,6 +37,7 @@ def optimization(dr, days_number, fridays, weekends, locations):
     s_g_n = []
     e_g_n = []
 
+    # SGN is list of doctors who has previous period's last shifts. The list static. Should be dynamic.
     for i in dr:
         if i.id in [1001, 1015, 1011]:
             s_g_n.append(i)
@@ -154,6 +166,10 @@ def optimization(dr, days_number, fridays, weekends, locations):
         for i in s_g_n:
             prob += lpSum([shift_var[i][days[0 + s_p]][l] for l in locations]) + DevSwFNeg[i][t] == 1, ""
 
+    """
+    MySQL database cannot keep a list in a field.
+    So some fields include comma seperated valued. This values is converted to lists via .split() method.
+    """
     for i in dr:
         if i.vacation_days:
             vacation_days = i.vacation_days.split(", ")
@@ -180,6 +196,7 @@ def optimization(dr, days_number, fridays, weekends, locations):
 
     prob.writeLP("nobetle.lp")
     prob.solve()
+    # Keeping statistic about the work of function.
     output = {"metadata": {}, "result": {}}
     n = 1
     for t in days:
