@@ -1,12 +1,8 @@
 *.idea
-static/
-origin_template/
-article.pdf
-secret.png
 *.lp
 project_management/
-# Created by https://www.gitignore.io/api/python
 
+# Created by https://www.gitignore.io/api/python
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
