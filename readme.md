@@ -55,7 +55,7 @@ If Python 3 didn't installed into your system, download Python 3 from official P
 
 ### 3. Install Requirements
 
-Please check, ```pip3``` is installed on your system(especially for Windows systems).
+To install requirements;
 
 ```pip3 install -r requirements.txt```
 
@@ -87,10 +87,19 @@ Please check, ```pip3``` is installed on your system(especially for Windows syst
 
 4. Then enter your MySQL root password.
 
-#### 2. On Windows Systems
-
-1. Instal MySQL via [.exe installer]()
-
 
 ### 5. Create Tables
+
+Table creation can be directly done by executing ```create_tables.sql``` file.
+
+To execute the file at MySQL shell;
+
+```source create_tables.sql```
+
+First user of Nobetle is owner user. And its database equivalent can be added to database by insert into method or basicly executing ```first_user.sql``` file.
+
+To execute the file at MySQL shell;
+
+```source first_user.sql```
+
 ### 6. Configure Services
